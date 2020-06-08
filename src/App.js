@@ -22,9 +22,11 @@ class App extends Component {
     };
   }
 
-  updateAccountBalance = () =>{
-    
-  }
+  // updateAccountBalance = () =>{
+  //   let accountBalance = function accountSum(event){
+      
+  //   }
+  // }
 
   mockLogIn = (logInInfo) => {
     const newUser = { ...this.state.currentUser };

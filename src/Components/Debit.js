@@ -11,10 +11,28 @@ class Debit extends Component {
       description: "",
       amount: 0,
       date: "",
+      obj:{},
     };
+    this.handleChange = this.handleChange.bind(this)
   }
 
-  handleChange(event) {}
+  handleChange(event) {
+    this.setState({
+      [event.target.name]: event.target.value
+    })
+  }
+
+  addTransaction=()=>{
+    console.log("debugging",this.state.debitArr)
+    const description = this.state.description;
+    const amount = this.state.amount;
+    const date =this.state.date;
+    const id = (Math.random() * 300).toString();
+    const obj = {'id':id, 'description': description, 'amount':amount, 'date':date }
+    const newDebit = [obj,...this.state.debitArr]
+    this.setState({debitArr : newDebit})
+    
+  }
 
   componentDidMount() {
     Axios
@@ -38,6 +56,7 @@ class Debit extends Component {
       });
   }
 
+
   render() {
     return (
       <div>
@@ -45,29 +64,33 @@ class Debit extends Component {
         <br></br>
         <h2>Total debit: ${this.state.debitTotal}</h2>
         <h4>Add transaction</h4>
-        <label for="description">Description:</label>
-        <input
-          type="text"
-          name="description"
-          value={this.state.debitArr.description}
-          onChange={this.handleChange}
-        />
-        <br></br>
-        <label for="amount">Amount:</label>
-        <input
-          type="text"
-          name="amount"
-          value={this.state.debitArr.amount}
-          onChange={this.handleChange}
-        />
-        <br></br>
-        <label for="date">Date:</label>
-        <input
-          type="text"
-          name="date"
-          value={this.state.debitArr.date}
-          onChange={this.handleChange}
-        />
+        <form >
+          <label /*for="description"*/>Description:</label>
+          <input
+            type="text"
+            name="description"
+            value={this.state.debitArr.description}
+            onChange={this.handleChange}
+          />
+          <br></br>
+          <label /*for="amount"*/>Amount:</label>
+          <input
+            type="text"
+            name="amount"
+            value={this.state.debitArr.amount}
+            onChange={this.handleChange}
+          />
+          <br></br>
+          <label /*for="date"*/>Date:</label>
+          <input
+            type="text"
+            name="date"
+            value={this.state.debitArr.date}
+            onChange={this.handleChange}
+          />
+          <br></br>
+          <button type="button" onClick={this.addTransaction} >Submit</button>
+        </form>
         <ul>
           {this.state.debitArr.map((debit) => (
             <li key={debit.id}>
