@@ -5,13 +5,12 @@ class Debit extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      debitArr: [],
-      debitTotal: 0,
-      description: "",
-      amount: 0,
-      date: "",
-      obj:{},
+    this.state = {    
+      obj:{
+        description: "",
+        amount: 0,
+        date: "",
+      },
     };
     this.handleTransaction = this.handleTransaction.bind(this)
   }

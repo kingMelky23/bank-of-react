@@ -15,17 +15,32 @@ class App extends Component {
       currentUser: {
         userName: "bob_loblaw",
         memberSince: "08/23/99",
-        debitArr: [],
-        creditArr: [],
-        debitBalance:0,
-        creditBalance: 0,
-      },
+       },
+       debits: [],
+       debitBalance: 0,
     };
   }
 
-  updatedebitBalance = () =>{
-    this.setState({debitBalance : this.state.debitBalance})
-    console.log(this.state.debitBalance)
+  componentDidMount() {
+    Axios
+      // debit
+      .get("https://moj-api.herokuapp.com/debits")
+      .then((response) => {
+        const data = response.data;
+        this.setState({ debits: data });
+        console.log(response);
+
+        let debitBalance = 0;
+        for (let price of data) {
+          debitTotal += price.amount;
+        }
+        this.setState({ debitBalance });
+      })
+
+      .catch((err) => {
+        console.log(err);
+        this.setState({ debitArr: [] });
+      });
   }
 
   mockLogIn = (logInInfo) => {
@@ -51,10 +66,10 @@ class App extends Component {
         {...this.props}
       />
     );
-    const DebitComponent = () => (
+    const DebitComponent = (event) => (
       <Debit
-        debitArrOfObj={this.state.debitArr}
-        debitAmount = {this.updatedebitBalance}
+          debitsHistory ={this.state.debits}
+          debitBalance = {this.state.debitBalance}
 
       />
     );
