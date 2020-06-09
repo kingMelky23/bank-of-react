@@ -5,6 +5,8 @@ import UserProfile from "./Components/UserProfile";
 import LogIn from "./Components/LogIn";
 import Debit from "./Components/Debit";
 import Credit from "./Components/Credit";
+import Axios from "axios";
+
 
 class App extends Component {
   constructor() {
@@ -15,17 +17,54 @@ class App extends Component {
       currentUser: {
         userName: "bob_loblaw",
         memberSince: "08/23/99",
-        debitArr: [],
-        creditArr: [],
-        debitBalance:0,
-        creditBalance: 0,
-      },
+       },
+       debits: [],
+       debitBalance: 0,
+       credits: [],
+       creditBalance:0
     };
   }
 
-  updatedebitBalance = () =>{
-    this.setState({debitBalance : this.state.debitBalance})
-    console.log(this.state.debitBalance)
+  componentDidMount() {
+    Axios
+      // debit
+      .get("https://moj-api.herokuapp.com/debits")
+      .then((response) => {
+        const data = response.data;
+        this.setState({ debits: data });
+        console.log(response);
+
+        let debitBalance = 0;
+        for (let price of data) {
+          debitBalance += price.amount;
+        }
+        this.setState({ debitBalance });
+      })
+
+      .catch((err) => {
+        console.log(err);
+        this.setState({ debitArr: [] });
+      });
+ 
+    Axios
+      // credit
+      .get("https://moj-api.herokuapp.com/credits")
+      .then((response) => {
+        const data = response.data;
+        this.setState({ credits: data });
+        console.log(response);
+
+        let creditBalance = 0;
+        for (let price of data) {
+          creditBalance += price.amount;
+        }
+        this.setState({ creditBalance });
+      })
+
+      .catch((err) => {
+        console.log(err);
+        this.setState({ credits: [] });
+      });
   }
 
   mockLogIn = (logInInfo) => {
@@ -33,7 +72,29 @@ class App extends Component {
     newUser.userName = logInInfo.userName;
     this.setState({ currentUser: newUser });
   };
+  
 
+  addToDebitHistory = (debit) =>{
+    let date = new Date();
+    debit.date = date.toISOString().substring(0,10);
+    const id = (Math.random() * 300);
+    debit.id = id
+    let newDebit = [debit,...this.state.debits];
+    this.setState({debits: newDebit});
+    this.setState({debitBalance: parseFloat(debit.amount)+ this.state.debitBalance })
+    this.setState({accountBalance: this.state.accountBalance- parseInt(debit.amount)});
+  }
+
+  addToCreditHistory = (credit) =>{
+    let date = new Date();
+    credit.date = date.toISOString().substring(0,10);
+    const id = (Math.random() * 300);
+    credit.id = id
+    let newcredit = [credit,...this.state.credits];
+    this.setState({credits: newcredit});
+    this.setState({creditBalance: parseFloat(credit.amount)+ this.state.creditBalance })
+    this.setState({accountBalance: this.state.accountBalance+ parseInt(credit.amount)});
+  }
   render() {
     const HomeComponent = () => (
       <Home accountBalance={this.state.accountBalance} />
@@ -53,16 +114,19 @@ class App extends Component {
     );
     const DebitComponent = () => (
       <Debit
-        debitArrOfObj={this.state.debitArr}
-        debitAmount = {this.updatedebitBalance}
-
+          debitsHistory ={this.state.debits}
+          accountBalance = {this.state.accountBalance}
+          debitBalance = {this.state.debitBalance}
+          addToDebitHistory= {this.addToDebitHistory}
       />
     );
     const CreditComponent = () => (
       <Credit
-        creditArrOfObj={this.state.creditArr}
-        creditAmount = {this.state.creditBalance}
-      />
+        creditsHistory ={this.state.credits}
+        accountBalance = {this.state.accountBalance}
+        creditBalance = {this.state.creditBalance}
+        addToCreditHistory= {this.addToCreditHistory}
+        />
     );
     return (
       <Router>
@@ -79,3 +143,4 @@ class App extends Component {
 }
 
 export default App;
+
