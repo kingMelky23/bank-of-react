@@ -13,17 +13,18 @@ class Debit extends Component {
       date: "",
       obj:{},
     };
-    this.handleChange = this.handleChange.bind(this)
+    this.handleTransaction = this.handleTransaction.bind(this)
   }
 
-  handleChange(event) {
+  handleTransaction(event) {
     this.setState({
       [event.target.name]: event.target.value
     })
   }
+  
 
   addTransaction=()=>{
-    console.log("debugging",this.state.debitArr)
+    //console.log("debugging",this.state.debitArr)
     const description = this.state.description;
     const amount = this.state.amount;
     const date =this.state.date;
@@ -31,8 +32,11 @@ class Debit extends Component {
     const obj = {'id':id, 'description': description, 'amount':amount, 'date':date }
     const newDebit = [obj,...this.state.debitArr]
     this.setState({debitArr : newDebit})
-    
+    // const newAmount = this.state.debitTotal + amount
+    this.setState({ debitTotal: parseFloat(amount) + this.state.debitTotal});
+      
   }
+
 
   componentDidMount() {
     Axios
@@ -58,11 +62,12 @@ class Debit extends Component {
 
 
   render() {
+    const {updatedebitBalance} = this.props
     return (
       <div>
         <h1>Debits</h1>
         <br></br>
-        <h2>Total debit: ${this.state.debitTotal}</h2>
+        <h2 >Total debit: ${this.state.debitTotal}</h2>
         <h4>Add transaction</h4>
         <form >
           <label /*for="description"*/>Description:</label>
@@ -70,7 +75,7 @@ class Debit extends Component {
             type="text"
             name="description"
             value={this.state.debitArr.description}
-            onChange={this.handleChange}
+            onChange={this.handleTransaction} 
           />
           <br></br>
           <label /*for="amount"*/>Amount:</label>
@@ -78,7 +83,7 @@ class Debit extends Component {
             type="text"
             name="amount"
             value={this.state.debitArr.amount}
-            onChange={this.handleChange}
+            onChange={this.handleTransaction}
           />
           <br></br>
           <label /*for="date"*/>Date:</label>
@@ -86,7 +91,7 @@ class Debit extends Component {
             type="text"
             name="date"
             value={this.state.debitArr.date}
-            onChange={this.handleChange}
+            onChange={this.handleTransaction}
           />
           <br></br>
           <button type="button" onClick={this.addTransaction} >Submit</button>

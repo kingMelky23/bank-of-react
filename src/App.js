@@ -17,16 +17,16 @@ class App extends Component {
         memberSince: "08/23/99",
         debitArr: [],
         creditArr: [],
-        
+        debitBalance:0,
+        creditBalance: 0,
       },
     };
   }
 
-  // updateAccountBalance = () =>{
-  //   let accountBalance = function accountSum(event){
-      
-  //   }
-  // }
+  updatedebitBalance = () =>{
+    this.setState({debitBalance : this.state.debitBalance})
+    console.log(this.state.debitBalance)
+  }
 
   mockLogIn = (logInInfo) => {
     const newUser = { ...this.state.currentUser };
@@ -54,11 +54,14 @@ class App extends Component {
     const DebitComponent = () => (
       <Debit
         debitArrOfObj={this.state.debitArr}
+        debitAmount = {this.updatedebitBalance}
+
       />
     );
     const CreditComponent = () => (
       <Credit
         creditArrOfObj={this.state.creditArr}
+        creditAmount = {this.state.creditBalance}
       />
     );
     return (
