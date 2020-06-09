@@ -1,98 +1,71 @@
 import React, { Component } from "react";
-import Axios from "axios";
+import {Redirect} from 'react-router-dom';
 
 class Credit extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      creditArr: [],
-      creditTotal: 0,
-      description: "",
-      amount: 0,
-      date: "",
-      obj:{},
-    };  
-    this.handleChange = this.handleChange.bind(this)
-  }
-
-  handleChange(event) {
-    this.setState({
-      [event.target.name]: event.target.value
-    })
-  }
-
-  addTransaction=()=>{
-    console.log("debugging",this.state.creditArr)
-    const description = this.state.description;
-    const amount = this.state.amount;
-    const date =this.state.date;
-    const id = (Math.random() * 300).toString();
-    const obj = {'id':id, 'description': description, 'amount':amount, 'date':date }
-    const newCredit = [obj,...this.state.creditArr]
-    this.setState({creditArr : newCredit})
+    this.state = {    
+      obj:{
+        id:0,
+        description: "",
+        amount: 0,
+        date: "",
+      },
+      redirect: false,
+    };
     
   }
 
-  componentDidMount() {
-    Axios
-      // credit
-      .get("https://moj-api.herokuapp.com/credits")
-      .then((response) => {
-        const data = response.data;
-        this.setState({ creditArr: data });
-        console.log(response);
-
-        let creditTotal = 0;
-        for (let price of data) {
-          creditTotal += price.amount;
-        }
-        this.setState({ creditTotal });
-      })
-
-      .catch((err) => {
-        console.log(err);
-        this.setState({ creditArr: [] });
-      });
+  handleTransaction =(event) => {
+    const updatedCredit = {...this.state.obj};
+        const inputField = event.target.name;
+        const inputValue= event.target.value;
+        
+        updatedCredit[inputField] = inputValue;
+        this.setState({obj: updatedCredit});
   }
+
+  handleSubmit = (event) =>{
+    event.preventDefault();
+    this.props.addToCreditHistory(this.state.obj);
+    this.setState({redirect: true});
+};
+  
 
 
   render() {
+    if(this.state.redirect)
+        {
+            return <Redirect to="/"/>;
+        }
     return (
       <div>
-        <h1>credits</h1>
+        <h1>Credits</h1>
         <br></br>
-        <h2>Total credit: ${this.state.creditTotal}</h2>
+        <h2 >Account balance: ${this.props.accountBalance}</h2>
         <h4>Add transaction</h4>
         <form >
           <label /*for="description"*/>Description:</label>
           <input
             type="text"
             name="description"
-            value={this.state.creditArr.description}
-            onChange={this.handleChange}
+            value={this.state.obj.description}
+            onChange={this.handleTransaction} 
           />
           <br></br>
           <label /*for="amount"*/>Amount:</label>
           <input
             type="text"
             name="amount"
-            value={this.state.creditArr.amount}
-            onChange={this.handleChange}
+            value={this.state.obj.amount}
+            onChange={this.handleTransaction}
           />
           <br></br>
-          <label /*for="date"*/>Date:</label>
-          <input
-            type="text"
-            name="date"
-            value={this.state.creditArr.date}
-            onChange={this.handleChange}
-          />
-          <br></br>
-          <button type="button" onClick={this.addTransaction} >Submit</button>
+          <button type="button" onClick={this.handleSubmit} >Add credit</button>
         </form>
         <ul>
-          {this.state.creditArr.map((credit) => (
+          {this.props.creditsHistory.map((credit) => (
             <li key={credit.id}>
               Description: {credit.description} <br></br> Amount: {credit.amount}
               <br></br> Date: {credit.date}

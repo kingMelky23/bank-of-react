@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Axios from "axios";
+import {Redirect} from 'react-router-dom';
 
 class Debit extends Component {
   constructor(props) {
@@ -7,96 +7,66 @@ class Debit extends Component {
 
     this.state = {    
       obj:{
+        id:0,
         description: "",
         amount: 0,
         date: "",
       },
+      redirect: false,
     };
-    this.handleTransaction = this.handleTransaction.bind(this)
+    
   }
 
-  handleTransaction(event) {
-    this.setState({
-      [event.target.name]: event.target.value
-    })
+  handleTransaction =(event) => {
+    const updatedDebit = {...this.state.obj};
+        const inputField = event.target.name;
+        const inputValue= event.target.value;
+        //const id = (Math.random() * 300).toString();
+        updatedDebit[inputField] = inputValue;
+        this.setState({obj: updatedDebit});
   }
+
+  handleSubmit = (event) =>{
+    event.preventDefault();
+    this.props.addToDebitHistory(this.state.obj);
+    this.setState({redirect: true});
+};
   
-
-  addTransaction=()=>{
-    //console.log("debugging",this.state.debitArr)
-    const description = this.state.description;
-    const amount = this.state.amount;
-    const date =this.state.date;
-    const id = (Math.random() * 300).toString();
-    const obj = {'id':id, 'description': description, 'amount':amount, 'date':date }
-    const newDebit = [obj,...this.state.debitArr]
-    this.setState({debitArr : newDebit})
-    // const newAmount = this.state.debitTotal + amount
-    this.setState({ debitTotal: parseFloat(amount) + this.state.debitTotal});
-      
-  }
-
-
-  componentDidMount() {
-    Axios
-      // debit
-      .get("https://moj-api.herokuapp.com/debits")
-      .then((response) => {
-        const data = response.data;
-        this.setState({ debitArr: data });
-        console.log(response);
-
-        let debitTotal = 0;
-        for (let price of data) {
-          debitTotal += price.amount;
-        }
-        this.setState({ debitTotal });
-      })
-
-      .catch((err) => {
-        console.log(err);
-        this.setState({ debitArr: [] });
-      });
-  }
 
 
   render() {
-    const {updatedebitBalance} = this.props
+    if(this.state.redirect)
+        {
+            return <Redirect to="/"/>;
+        }
     return (
       <div>
         <h1>Debits</h1>
         <br></br>
-        <h2 >Total debit: ${this.state.debitTotal}</h2>
+        <h2>Total debit: ${this.props.accountBalance}</h2>
         <h4>Add transaction</h4>
         <form >
           <label /*for="description"*/>Description:</label>
           <input
             type="text"
             name="description"
-            value={this.state.debitArr.description}
-            onChange={this.handleTransaction} 
+            value={this.state.obj.description}
+            onChange={this.handleTransaction}
+            placeholder ="text"
           />
           <br></br>
           <label /*for="amount"*/>Amount:</label>
           <input
             type="text"
             name="amount"
-            value={this.state.debitArr.amount}
-            onChange={this.handleTransaction}
+            value={this.state.obj.amount}
+            onChange={this.handleTransaction} placeholder = "amount"
           />
           <br></br>
-          <label /*for="date"*/>Date:</label>
-          <input
-            type="text"
-            name="date"
-            value={this.state.debitArr.date}
-            onChange={this.handleTransaction}
-          />
-          <br></br>
-          <button type="button" onClick={this.addTransaction} >Submit</button>
+          <button type="button" onClick={this.handleSubmit} >Add debit</button>
         </form>
         <ul>
-          {this.state.debitArr.map((debit) => (
+          {this.props.debitsHistory.map((debit) => (
             <li key={debit.id}>
               Description: {debit.description} <br></br> Amount: {debit.amount}
               <br></br> Date: {debit.date}
